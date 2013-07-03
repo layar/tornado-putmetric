@@ -12,13 +12,13 @@ There are two classes
 * `TornadoCloudWatch` -- simple class sending metric one by one 
 * `BatchingTornadoCloudWatch` -- periodically sends metrics in batches of up to 20; use one instance per app
 
-Since CloudWatch has only 1 minute resolution, there is no need to send metric more often than that. 
+Typically you'd use `BatchingTornadoCloudWatch`. Since CloudWatch has only 1 minute resolution, there is no need to send metric more often than that, thus `BatchingTornadoCloudWatch` will gather metric and send them periodically (by default once per minute) in batches.
 
 
 Usage
 -----
 
-Very simple usage example, without exception handling.
+Very simple usage example. Skipped the exception handling, to keep the example concise. 
 
     import tornado.ioloop
     import tornado.web

@@ -72,7 +72,6 @@ class TornadoCloudWatch(object):
         request = HTTPRequest(url = "%s://%s/" % (protocol, self.endpoint), 
                               method="POST",
                               body=body)
-        log.debug(request.body)
         return request
     
     def _send_request(self, action, params=None, callback=None, timestamp=None):
@@ -115,7 +114,7 @@ class BatchingTornadoCloudWatch(TornadoCloudWatch):
         uses Tornado's AsyncHTTPClient
         typically you'd want to use just one instance per application
     """
-    def __init__(self, region, access_key_id=None, secret_access_key=None, frequency_miliseconds=30000): 
+    def __init__(self, region, access_key_id=None, secret_access_key=None, frequency_miliseconds=60000): 
         super(BatchingTornadoCloudWatch, self).__init__(region, access_key_id, secret_access_key)
         self.metric_cache = {}
         PeriodicCallback(self.send_cached_metrics, frequency_miliseconds).start()
@@ -123,7 +122,7 @@ class BatchingTornadoCloudWatch(TornadoCloudWatch):
     @staticmethod
     def _minute_now(t=None):
         """Amazon CloudWatch aggregates the data to a minimum granularity of one minute. 
-           This generates one minute granuality timestamps 
+           This generates one minute granularity timestamps 
         """
         t = t or datetime.now()
         return datetime(*t.timetuple()[:5])
@@ -131,17 +130,16 @@ class BatchingTornadoCloudWatch(TornadoCloudWatch):
     def put_metric_data_now(self, *args, **kwargs):
         super(BatchingTornadoCloudWatch, self).put_metric_data(*args, **kwargs)
         
-        
     def put_metric_data_later(self, namespace, metrics):
         if type(metrics) not in (list, tuple):
             metrics = (metrics,)
         self.metric_cache.setdefault((self._minute_now(),namespace), []).extend(metrics)
     
+    ### keeping interface consistent, so it's a drop-in replacement for TornadoCloudWatch
     put_metric_data = put_metric_data_later
-        
+    
     def send_cached_metrics(self):
         cache_to_send, self.metric_cache = self.metric_cache, {}
         for (timestamp, namespace), metrics in cache_to_send.items():
             for metrics_chunk in [metrics[i:i+PUT_METRIC_CHUNK_SIZE] for i in range(0, len(metrics), PUT_METRIC_CHUNK_SIZE)]: 
                 self.put_metric_data_now(namespace, metrics_chunk, timestamp)
-                log.debug("sending metrics batch", extra={"namespace": namespace, "n_metric": len(metrics_chunk), "timestamp": timestamp.isoformat()})
