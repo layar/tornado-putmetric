@@ -3,6 +3,7 @@ tornado-putmetric
 
 Asynchronous implementation of Amazon CloudWatch PutMetric call for Tornado Web
 
+This code is licensed under the Apache Licence, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html).
 
 Overview
 --------
@@ -47,3 +48,8 @@ Very simple usage example, without exception handling.
                                                            secret_access_key=AWS_SECRET_ACCESS_KEY)
         
         tornado.ioloop.IOLoop.instance().start()
+
+
+
+
+
