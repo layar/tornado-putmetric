@@ -124,7 +124,7 @@ class BatchingTornadoCloudWatch(TornadoCloudWatch):
         """Amazon CloudWatch aggregates the data to a minimum granularity of one minute. 
            This generates one minute granularity timestamps 
         """
-        t = t or datetime.now()
+        t = t or datetime.utcnow()
         return datetime(*t.timetuple()[:5])
     
     def put_metric_data_now(self, *args, **kwargs):
