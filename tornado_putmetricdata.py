@@ -60,7 +60,7 @@ class TornadoCloudWatch(object):
                   'AWSAccessKeyId': self.access_key_id,
                   'SignatureVersion': 2,
                   'SignatureMethod': 'HmacSHA256',
-                  'Timestamp': (timestamp or datetime.now()).isoformat(),
+                  'Timestamp': (timestamp or datetime.utcnow()).isoformat(),
                   'Version': '2010-08-01',
                   }
         params.update(extra_params)
